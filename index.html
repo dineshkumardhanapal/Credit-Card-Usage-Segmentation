@@ -127,11 +127,11 @@
 
             // Prepare datasets for Chart.js
             const datasets = Object.keys(clusterColors).map(clusterId => {
-                // Filter data for the current cluster. Added a check for 'row' to avoid errors on empty rows.
-                const points = data.filter(row => row && row.CLUSTER == clusterId);
+                // --- FIX ---
+                // Changed row.CLUSTER to row.cluster to match the likely CSV header.
+                // This is case-sensitive.
+                const points = data.filter(row => row && row.cluster == clusterId);
                 
-                // --- NEW DEBUGGING LINE ---
-                // This will tell us if the filter is working correctly.
                 console.log(`For Cluster ${clusterId}, found ${points.length} points.`);
 
                 return {
@@ -199,10 +199,12 @@
 
             // Update cluster badge
             const clusterBadge = document.getElementById('cluster-badge');
-            clusterBadge.textContent = `SEGMENT ${customerData.CLUSTER}`;
-            clusterBadge.style.backgroundColor = bgColors[customerData.CLUSTER];
-            clusterBadge.style.color = colors[customerData.CLUSTER];
-            clusterBadge.style.border = `1px solid ${colors[customerData.CLUSTER]}`;
+            // --- FIX ---
+            // Changed customerData.CLUSTER to customerData.cluster
+            clusterBadge.textContent = `SEGMENT ${customerData.cluster}`;
+            clusterBadge.style.backgroundColor = bgColors[customerData.cluster];
+            clusterBadge.style.color = colors[customerData.cluster];
+            clusterBadge.style.border = `1px solid ${colors[customerData.cluster]}`;
 
 
             // Update customer ID
