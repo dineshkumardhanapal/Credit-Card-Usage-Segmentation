@@ -92,7 +92,10 @@
                 dynamicTyping: true, // Automatically convert numbers
                 complete: function(results) {
                     console.log("Data loaded and parsed:", results.data);
-                    if (results.data) {
+                    // --- NEW DIAGNOSTIC LINE ---
+                    // This will print the exact column names from your CSV file.
+                    if (results.data && results.data.length > 0) {
+                        console.log("Column names in first row:", Object.keys(results.data[0]));
                         renderChart(results.data);
                     } else {
                         alert("Could not load or parse data. Please check the CSV file and path.");
@@ -109,13 +112,11 @@
         function renderChart(data) {
             const ctx = document.getElementById('customerScatterPlot').getContext('2d');
             
-            // Define colors for the clusters
             const clusterColors = {
-                0: 'rgba(75, 192, 192, 0.8)',  // Teal
-                1: 'rgba(255, 99, 132, 0.8)',  // Red
-                2: 'rgba(54, 162, 235, 0.8)',  // Blue
-                3: 'rgba(255, 206, 86, 0.8)',  // Yellow
-                // Add more colors if you have more clusters
+                0: 'rgba(75, 192, 192, 0.8)',
+                1: 'rgba(255, 99, 132, 0.8)',
+                2: 'rgba(54, 162, 235, 0.8)',
+                3: 'rgba(255, 206, 86, 0.8)',
             };
 
             const clusterBackgroundColors = {
@@ -125,11 +126,8 @@
                 3: 'rgba(255, 206, 86, 0.2)',
             };
 
-            // Prepare datasets for Chart.js
             const datasets = Object.keys(clusterColors).map(clusterId => {
-                // --- FIX ---
-                // Changed row.CLUSTER to row.cluster to match the likely CSV header.
-                // This is case-sensitive.
+                // We will keep this as 'cluster' for now. The diagnostic line will tell us the correct name.
                 const points = data.filter(row => row && row.cluster == clusterId);
                 
                 console.log(`For Cluster ${clusterId}, found ${points.length} points.`);
@@ -150,9 +148,7 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: {
-                            position: 'top',
-                        },
+                        legend: { position: 'top' },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
@@ -164,18 +160,8 @@
                         }
                     },
                     scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Principal Component 1'
-                            }
-                        },
-                        y: {
-                            title: {
-                                display: true,
-                                text: 'Principal Component 2'
-                            }
-                        }
+                        x: { title: { display: true, text: 'Principal Component 1' } },
+                        y: { title: { display: true, text: 'Principal Component 2' } }
                     },
                     onClick: (event, elements) => {
                         if (elements.length > 0) {
@@ -190,27 +176,19 @@
 
         // Function to update the profile card on the right
         function updateProfile(customerData, colors, bgColors) {
-            // Hide the initial instruction message
             document.getElementById('instruction-message').classList.add('hidden');
-            
-            // Show the profile content
             const profileContent = document.getElementById('profile-content');
             profileContent.classList.remove('hidden');
 
-            // Update cluster badge
             const clusterBadge = document.getElementById('cluster-badge');
-            // --- FIX ---
-            // Changed customerData.CLUSTER to customerData.cluster
+            // We will keep this as 'cluster' for now.
             clusterBadge.textContent = `SEGMENT ${customerData.cluster}`;
             clusterBadge.style.backgroundColor = bgColors[customerData.cluster];
             clusterBadge.style.color = colors[customerData.cluster];
             clusterBadge.style.border = `1px solid ${colors[customerData.cluster]}`;
 
-
-            // Update customer ID
             document.getElementById('cust-id').textContent = customerData.CUST_ID;
 
-            // Update profile details
             const detailsContainer = document.getElementById('profile-details');
             const detailsToShow = {
                 'Balance': customerData.BALANCE.toFixed(2),
@@ -221,7 +199,7 @@
                 'Tenure (Months)': customerData.TENURE,
             };
 
-            detailsContainer.innerHTML = ''; // Clear previous details
+            detailsContainer.innerHTML = '';
             for (const [key, value] of Object.entries(detailsToShow)) {
                 const detailEl = document.createElement('div');
                 detailEl.className = 'flex justify-between border-b border-gray-200 py-2';
