@@ -85,15 +85,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             const dataPath = 'customer_segments_for_dashboard.csv';
             
-            // Use Papa Parse to fetch and parse the CSV data
             Papa.parse(dataPath, {
                 download: true,
                 header: true,
-                dynamicTyping: true, // Automatically convert numbers
+                dynamicTyping: true,
                 complete: function(results) {
                     console.log("Data loaded and parsed:", results.data);
-                    // --- NEW DIAGNOSTIC LINE ---
-                    // This will print the exact column names from your CSV file.
                     if (results.data && results.data.length > 0) {
                         console.log("Column names in first row:", Object.keys(results.data[0]));
                         renderChart(results.data);
@@ -127,13 +124,15 @@
             };
 
             const datasets = Object.keys(clusterColors).map(clusterId => {
-                // We will keep this as 'cluster' for now. The diagnostic line will tell us the correct name.
-                const points = data.filter(row => row && row.cluster == clusterId);
+                // --- FINAL FIX ---
+                // Using the correct column name 'CLUSTER_x' revealed by our diagnostic step.
+                const points = data.filter(row => row && row.CLUSTER_x == clusterId);
                 
                 console.log(`For Cluster ${clusterId}, found ${points.length} points.`);
 
                 return {
                     label: `Segment ${clusterId}`,
+                    // Using correct PCA column names
                     data: points.map(p => ({ x: p.PCA1, y: p.PCA2, fullData: p })),
                     backgroundColor: clusterColors[clusterId],
                 };
@@ -181,11 +180,12 @@
             profileContent.classList.remove('hidden');
 
             const clusterBadge = document.getElementById('cluster-badge');
-            // We will keep this as 'cluster' for now.
-            clusterBadge.textContent = `SEGMENT ${customerData.cluster}`;
-            clusterBadge.style.backgroundColor = bgColors[customerData.cluster];
-            clusterBadge.style.color = colors[customerData.cluster];
-            clusterBadge.style.border = `1px solid ${colors[customerData.cluster]}`;
+            // --- FINAL FIX ---
+            // Using the correct column name 'CLUSTER_x'
+            clusterBadge.textContent = `SEGMENT ${customerData.CLUSTER_x}`;
+            clusterBadge.style.backgroundColor = bgColors[customerData.CLUSTER_x];
+            clusterBadge.style.color = colors[customerData.CLUSTER_x];
+            clusterBadge.style.border = `1px solid ${colors[customerData.CLUSTER_x]}`;
 
             document.getElementById('cust-id').textContent = customerData.CUST_ID;
 
